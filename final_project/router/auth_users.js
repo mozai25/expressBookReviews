@@ -81,6 +81,32 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     }
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => { 
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;
+    let book = null;
+    for (let index = 1; index <= Object.keys(books).length; index++) {
+        let b = books[index];
+        if (b.isbn === isbn) {
+            book = b;
+        }
+    }
+    if (book != null) {
+        let reviews = book.reviews;
+        if (Object.keys(reviews).length == 0) {
+            return res.send("No reviews yet!");
+        } else {
+            for (let index = 0; index <= Object.keys(book.reviews).length; index++) {
+                if (reviews[index] != null && reviews[index].author == username) {
+                    delete reviews[index];
+                    return res.send("Review deleted!");
+                }
+            }
+            return res.send("You do not have review for this book yet!");            
+        }
+    }
+});
+
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
